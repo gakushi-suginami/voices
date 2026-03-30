@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>区民の声ボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --border: #e4e2da;
+    --border-soft: #eeece6;
+    --text: #1a1917;
+    --text-muted: #6b6860;
+    --text-hint: #9e9c96;
+    --accent: #2d5be3;
+    --accent-light: #eef2fd;
+    --green: #1e7d4e;
+    --green-light: #edf7f2;
+    --amber: #b05c0a;
+    --amber-light: #fef3e6;
+    --blue: #185fa5;
+    --blue-light: #e6f1fb;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  .site-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+  .site-title span {
+    color: var(--accent);
+  }
+  nav { display: flex; gap: 4px; }
+  nav button {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 400;
+    transition: all .15s;
+  }
+  nav button:hover { background: var(--bg); color: var(--text); }
+  nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+
+  /* MAIN */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  /* PAGE */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 2rem;
+  }
+  .hero h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.75rem;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-hint);
+    margin-bottom: 4px;
+    letter-spacing: 0.03em;
+  }
+  .stat-num {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-btn {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+  .search-wrap { flex: 1; min-width: 160px; position: relative; }
+  .search-wrap::before {
+    content: '';
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239e9c96'%3E%3Cpath fill-rule='evenodd' d='M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z'/%3E%3C/svg%3E") no-repeat center;
+    background-size: contain;
+  }
+  .search {
+    width: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 6px 12px 6px 32px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search:focus { border-color: var(--accent); }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-hint);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    text-align: left;
+    background: var(--bg);
+    letter-spacing: 0.04em;
+  }
+  td {
+    font-size: 13px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf8; }
+  .col-theme { width: 80px; }
+  .col-voice { width: auto; }
+  .col-date { width: 68px; }
+  .col-status { width: 96px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-child { background: #e6f1fb; color: #0c447c; }
+  .badge-traffic { background: #eaf3de; color: #27500a; }
+  .badge-welfare { background: #fef3e6; color: #7a3d08; }
+  .badge-env { background: #e1f5ee; color: #085041; }
+  .badge-other { background: #f1efe8; color: #444441; }
+
+  /* STATUS */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-new { background: #378add; }
+  .dot-wip { background: #ef9f27; }
+  .dot-done { background: #639922; }
+
+  .voice-text { line-height: 1.6; color: var(--text); }
+  .comment {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-top: 6px;
+    padding-left: 10px;
+    border-left: 2px solid var(--border);
+  }
+  .date-cell { color: var(--text-hint); font-size: 12px; }
+  .empty { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 14px; }
+
+  /* THEME PAGE */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .theme-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .theme-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(45,91,227,0.06); }
+  .theme-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .theme-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .theme-name { font-size: 15px; font-weight: 700; }
+  .theme-count { font-size: 12px; color: var(--text-muted); }
+  .theme-bar-wrap { height: 4px; background: var(--border-soft); border-radius: 2px; overflow: hidden; }
+  .theme-bar { height: 4px; border-radius: 2px; transition: width .5s ease; }
+  .theme-detail {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: fadeIn .2s ease;
+  }
+  .theme-detail-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* FORM PAGE */
+  .form-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+  }
+  .field { margin-bottom: 1.25rem; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .field label .req {
+    display: inline-block;
+    font-size: 10px;
+    background: #fce8e8;
+    color: #b03030;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+  .field label .opt {
+    font-size: 11px;
+    color: var(--text-hint);
+    font-weight: 400;
+    margin-left: 6px;
+  }
+  .field select, .field textarea {
+    width: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field select:focus, .field textarea:focus { border-color: var(--accent); background: var(--surface); }
+  .field textarea { resize: vertical; min-height: 110px; line-height: 1.7; }
+  .char-count { font-size: 11px; color: var(--text-hint); text-align: right; margin-top: 4px; }
+  .checkbox-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1.5rem; }
+  .checkbox-row input { width: 16px; height: 16px; margin-top: 2px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0; }
+  .checkbox-row label { font-size: 13px; color: var(--text-muted); line-height: 1.6; cursor: pointer; }
+  .submit-btn {
+    width: 100%;
+    padding: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: 0.02em;
+  }
+  .submit-btn:hover { background: #2348c4; }
+  .submit-btn:disabled { background: var(--border); color: var(--text-hint); cursor: not-allowed; }
+
+  /* SUCCESS */
+  .success-box {
+    background: var(--green-light);
+    border: 1px solid #b6e0cb;
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+  }
+  .success-icon {
+    width: 48px; height: 48px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 22px;
+    color: white;
+  }
+  .success-box h3 { font-size: 17px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+  .success-box p { font-size: 14px; color: #2d6e4a; line-height: 1.7; }
+  .back-btn {
+    margin-top: 1.25rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 8px 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid #b6e0cb;
+    background: transparent;
+    color: var(--green);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .back-btn:hover { background: #d3efe3; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-hint);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    main { padding: 1.25rem 1rem 3rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .theme-grid { grid-template-columns: 1fr; }
+    .col-date { display: none; }
+    .header-inner { padding: 0; }
+    header { padding: 0 1rem; }
+    nav button { font-size: 12px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">杉並区議会 <span>区民の声ボード</span></div>
+    <nav>
+      <button class="active" onclick="showPage('board', this)">声の一覧</button>
+      <button onclick="showPage('theme', this)">テーマ別</button>
+      <button onclick="showPage('form', this)">声を届ける</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===== BOARD PAGE ===== -->
+  <div class="page active" id="page-board">
+    <div class="hero">
+      <h1>区民の声 一覧</h1>
+      <p>寄せられた声の受付・対応状況を公開しています。</p>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="controls">
+      <button class="filter-btn active" onclick="setFilter(this,'all')">すべて</button>
+      <button class="filter-btn" onclick="setFilter(this,'新規受付')">新規受付</button>
+      <button class="filter-btn" onclick="setFilter(this,'調査中')">調査中</button>
+      <button class="filter-btn" onclick="setFilter(this,'回答済み')">回答済み</button>
+      <div class="search-wrap">
+        <input class="search" type="text" id="search" placeholder="キーワードで検索..." oninput="renderBoard()">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-theme">テーマ</th>
+            <th class="col-voice">声の内容・議員コメント</th>
+            <th class="col-date">受付日</th>
+            <th class="col-status">ステータス</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== THEME PAGE ===== -->
+  <div class="page" id="page-theme">
+    <div class="hero">
+      <h1>テーマ別</h1>
+      <p>テーマをクリックすると、そのテーマの声が表示されます。</p>
+    </div>
+    <div class="theme-grid" id="theme-grid"></div>
+    <div class="theme-detail" id="theme-detail" style="display:none;">
+      <div class="theme-detail-header" id="theme-detail-header"></div>
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        <thead>
+          <tr>
+            <th style="font-size:11px;font-weight:500;color:#9e9c96;padding:10px 16px;border-bottom:1px solid #eeece6;text-align:left;background:#f7f6f2;letter-spacing:.04em;">声の内容・議員コメント</th>
+            <th style="width:68px;font-size:11px;font-weight:500;color:#9e9c96;padding:10px 16px;border-bottom:1px solid #eeece6;text-align:left;background:#f7f6f2;letter-spacing:.04em;">受付日</th>
+            <th style="width:96px;font-size:11px;font-weight:500;color:#9e9c96;padding:10px 16px;border-bottom:1px solid #eeece6;text-align:left;background:#f7f6f2;letter-spacing:.04em;">ステータス</th>
+          </tr>
+        </thead>
+        <tbody id="theme-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== FORM PAGE ===== -->
+  <div class="page" id="page-form">
+    <div class="hero">
+      <h1>声を届ける</h1>
+      <p>区民のみなさんのご意見・ご要望をお聞かせください。</p>
+    </div>
+    <div id="form-wrap">
+      <div class="form-intro">
+        いただいた声はすべて議員が確認します。内容を匿名でボードに掲載し、調査・対応状況を公開します。個人を特定できる情報は掲載しません。
+      </div>
+      <div class="form-card">
+        <div class="field">
+          <label>テーマ <span class="req">必須</span></label>
+          <select id="f-theme">
+            <option value="">選択してください</option>
+            <option>子育て</option>
+            <option>交通</option>
+            <option>福祉</option>
+            <option>環境</option>
+            <option>その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>声の内容 <span class="req">必須</span><span class="opt">最大200文字</span></label>
+          <textarea id="f-voice" maxlength="200" placeholder="具体的な場所や状況を書いていただくと、より対応しやすくなります。" oninput="updateChar()"></textarea>
+          <div class="char-count"><span id="char-num">0</span> / 200</div>
+        </div>
+        <div class="field">
+          <label>お住まいの地域 <span class="opt">任意</span></label>
+          <select id="f-area">
+            <option value="">選択してください（任意）</option>
+            <option>阿佐ヶ谷・高円寺</option>
+            <option>荻窪・西荻窪</option>
+            <option>吉祥寺口周辺</option>
+            <option>その他・非公開</option>
+          </select>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="f-agree">
+          <label for="f-agree">声の内容が匿名でボードに掲載されることに同意します</label>
+        </div>
+        <button class="submit-btn" id="submit-btn" onclick="submitForm()">送信する</button>
+      </div>
+    </div>
+    <div id="form-success" style="display:none;">
+      <div class="success-box">
+        <div class="success-icon">✓</div>
+        <h3>声を受け取りました</h3>
+        <p>ご意見をお届けいただきありがとうございます。<br>内容を確認のうえ、ボードに掲載し、対応状況をお知らせします。</p>
+        <button class="back-btn" onclick="resetForm()">声の一覧に戻る</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  杉並区議会議員 &nbsp;|&nbsp; このページは区民との対話のために運営しています
+</footer>
+
+<script>
+// ============================================================
+// ★★★ここを編集して声のデータを更新してください★★★
+// 新しい声を追加するときは、このリストの先頭に追加します。
+// ============================================================
+const VOICES = [
+  {
+    theme: "子育て",
+    voice: "保育園の送迎バスが廃止になると聞いた。共働き家庭には死活問題です。",
+    date: "2024/3/5",
+    status: "調査中",
+    comment: "区の担当部署に現状を問い合わせ中。3月中に回答予定。"
+  },
+  {
+    theme: "交通",
+    voice: "駅前の放置自転車が増えて歩行者が通りにくい。特に雨の日が危険。",
+    date: "2024/3/8",
+    status: "調査中",
+    comment: "道路課と協議中。駐輪スペース拡張の可能性を確認しています。"
+  },
+  {
+    theme: "子育て",
+    voice: "小学校のトイレが古くて洋式が少ない。子どもが学校で我慢している。",
+    date: "2024/3/10",
+    status: "回答済み",
+    comment: "令和6年度の改修計画に3校が含まれることを確認しました。詳細は区HPをご参照ください。"
+  },
+  {
+    theme: "福祉",
+    voice: "高齢の親が一人暮らし。緊急時の連絡体制が整っているか不安。",
+    date: "2024/3/12",
+    status: "回答済み",
+    comment: "区の「緊急通報システム」の申請方法をご案内しました。月額300円で利用可能です。"
+  },
+  {
+    theme: "環境",
+    voice: "近所の公園の木が枯れているのに何年も放置されている。景観も安全も心配。",
+    date: "2024/3/15",
+    status: "新規受付",
+    comment: ""
+  },
+  {
+    theme: "交通",
+    voice: "バスの本数が減って通院が大変になった。特に高齢者には影響が大きい。",
+    date: "2024/3/18",
+    status: "新規受付",
+    comment: ""
+  },
+  {
+    theme: "その他",
+    voice: "地域のお祭りの会場費用が毎年上がっている。町会の財政が厳しい。",
+    date: "2024/3/20",
+    status: "調査中",
+    comment: "区の補助金制度の適用可能性を調べています。"
+  }
+];
+// ============================================================
+// ★★★データここまで★★★
+// ============================================================
+
+const BADGE_MAP = { 子育て:"badge-child", 交通:"badge-traffic", 福祉:"badge-welfare", 環境:"badge-env", その他:"badge-other" };
+const THEME_COLORS = { 子育て:"#378ADD", 交通:"#639922", 福祉:"#EF9F27", 環境:"#1D9E75", その他:"#888780" };
+
+let currentFilter = "all";
+
+function statusDot(s) {
+  if (s === "新規受付") return '<span class="status"><span class="dot dot-new"></span>新規受付</span>';
+  if (s === "調査中")   return '<span class="status"><span class="dot dot-wip"></span>調査中</span>';
+  return '<span class="status"><span class="dot dot-done"></span>回答済み</span>';
+}
+
+function renderStats() {
+  const t = VOICES.length;
+  const n = VOICES.filter(d => d.status === "新規受付").length;
+  const w = VOICES.filter(d => d.status === "調査中").length;
+  const done = VOICES.filter(d => d.status === "回答済み").length;
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><div class="stat-label">受付件数</div><div class="stat-num">${t}</div></div>
+    <div class="stat"><div class="stat-label">新規受付</div><div class="stat-num" style="color:#185fa5">${n}</div></div>
+    <div class="stat"><div class="stat-label">調査中</div><div class="stat-num" style="color:#b05c0a">${w}</div></div>
+    <div class="stat"><div class="stat-label">回答済み</div><div class="stat-num" style="color:#1e7d4e">${done}</div></div>
+  `;
+}
+
+function renderBoard() {
+  const kw = (document.getElementById("search") || {}).value || "";
+  const filtered = VOICES.filter(d => {
+    const mf = currentFilter === "all" || d.status === currentFilter;
+    const ms = !kw || d.voice.includes(kw) || d.theme.includes(kw) || (d.comment && d.comment.includes(kw));
+    return mf && ms;
+  });
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = filtered.length ? filtered.map(d => `
+    <tr>
+      <td><span class="badge ${BADGE_MAP[d.theme] || 'badge-other'}">${d.theme}</span></td>
+      <td>
+        <div class="voice-text">${d.voice}</div>
+        ${d.comment ? `<div class="comment">${d.comment}</div>` : ""}
+      </td>
+      <td class="date-cell">${d.date}</td>
+      <td>${statusDot(d.status)}</td>
+    </tr>
+  `).join("") : '<tr><td colspan="4" class="empty">該当する声がありません</td></tr>';
+}
+
+function setFilter(btn, f) {
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentFilter = f;
+  renderBoard();
+}
+
+function renderThemes() {
+  const themes = [...new Set(VOICES.map(d => d.theme))];
+  const max = Math.max(...themes.map(t => VOICES.filter(d => d.theme === t).length));
+  document.getElementById("theme-grid").innerHTML = themes.map(t => {
+    const cnt = VOICES.filter(d => d.theme === t).length;
+    const done = VOICES.filter(d => d.theme === t && d.status === "回答済み").length;
+    const pct = Math.round((cnt / max) * 100);
+    return `<div class="theme-card" id="tc-${t}" onclick="selectTheme('${t}')">
+      <div class="theme-card-top">
+        <span class="theme-name">${t}</span>
+        <span class="theme-count">${cnt}件・回答済み${done}</span>
+      </div>
+      <div class="theme-bar-wrap">
+        <div class="theme-bar" style="width:${pct}%;background:${THEME_COLORS[t] || '#888'}"></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function selectTheme(t) {
+  document.querySelectorAll(".theme-card").forEach(c => c.classList.remove("selected"));
+  const card = document.getElementById("tc-" + t);
+  if (card) card.classList.add("selected");
+  const items = VOICES.filter(d => d.theme === t);
+  document.getElementById("theme-detail-header").textContent = t + " の声（" + items.length + "件）";
+  document.getElementById("theme-tbody").innerHTML = items.map(d => `
+    <tr>
+      <td style="font-size:13px;padding:13px 16px;border-bottom:1px solid #eeece6;vertical-align:top;">
+        <div class="voice-text">${d.voice}</div>
+        ${d.comment ? `<div class="comment">${d.comment}</div>` : ""}
+      </td>
+      <td style="font-size:12px;color:#9e9c96;padding:13px 16px;border-bottom:1px solid #eeece6;vertical-align:top;width:68px;">${d.date}</td>
+      <td style="padding:13px 16px;border-bottom:1px solid #eeece6;vertical-align:top;width:96px;">${statusDot(d.status)}</td>
+    </tr>
+  `).join("");
+  document.getElementById("theme-detail").style.display = "block";
+}
+
+function updateChar() {
+  document.getElementById("char-num").textContent = document.getElementById("f-voice").value.length;
+}
+
+function submitForm() {
+  const theme = document.getElementById("f-theme").value;
+  const voice = document.getElementById("f-voice").value.trim();
+  const agree = document.getElementById("f-agree").checked;
+  if (!theme || !voice || !agree) {
+    alert("テーマ・内容を入力し、同意のチェックを入れてください。");
+    return;
+  }
+  const today = new Date();
+  const dateStr = today.getFullYear() + "/" + (today.getMonth()+1) + "/" + today.getDate();
+  VOICES.unshift({ theme, voice, date: dateStr, status: "新規受付", comment: "" });
+  document.getElementById("form-wrap").style.display = "none";
+  document.getElementById("form-success").style.display = "block";
+  renderStats();
+  renderBoard();
+  renderThemes();
+}
+
+function resetForm() {
+  document.getElementById("f-theme").value = "";
+  document.getElementById("f-voice").value = "";
+  document.getElementById("f-area").value = "";
+  document.getElementById("f-agree").checked = false;
+  document.getElementById("char-num").textContent = "0";
+  document.getElementById("form-wrap").style.display = "block";
+  document.getElementById("form-success").style.display = "none";
+  showPage("board", document.querySelectorAll("nav button")[0]);
+}
+
+function showPage(name, btn) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  if (btn) btn.classList.add("active");
+}
+
+// 初期描画
+renderStats();
+renderBoard();
+renderThemes();
+</script>
+</body>
+</html>
